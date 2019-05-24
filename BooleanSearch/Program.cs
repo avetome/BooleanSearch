@@ -17,7 +17,7 @@ namespace BooleanSearch
     /// * Write unit tests
     /// * Clean up the code.
     /// 
-    /// It's just a example, so I don't want to implement jokers or checking typo in term or search query plan optimizing. It's a path of samurai, endless path.
+    /// It's just a example, so I don't want to implement jokers or checking typo in terms or do search query plan optimizing. It's a path of samurai, endless path.
     /// </summary>
     public class Program
     {
