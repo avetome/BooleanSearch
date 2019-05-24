@@ -14,6 +14,7 @@ namespace BooleanSearch
     /// * Query parsing and build expression tree.
     /// * Move all code to it own classes, separate user interaction, getting data, indexing and searching from each other.
     /// * Save index on disk to restore it on next start. Check index file date and source file modify date and rebuild index if needed.
+    /// * Write unit tests
     /// * Clean up the code.
     /// 
     /// It's just a example, so I don't want to implement jokers or checking typo in term or search query plan optimizing. It's a path of samurai, endless path.
@@ -69,8 +70,6 @@ namespace BooleanSearch
             string brand = string.Empty;
             string model = string.Empty;
 
-            string term = string.Empty;
-
             using (StreamReader file = new StreamReader(filename))
             {
                 while ((line = file.ReadLine()) != null)
@@ -99,8 +98,6 @@ namespace BooleanSearch
                     // We look on brand and model same way, just because we don't need any ranging yet
                     while (true)
                     {
-                        char symbolForDebugging = line[i];
-
                         // TODO: Move symbols to special constants
                         if (char.IsLetterOrDigit(line[i])
                             || line[i] == '-'
@@ -113,8 +110,7 @@ namespace BooleanSearch
                         {
                             if (termStart > 0)
                             {
-                                term = line.Substring(i - termStart, termStart);
-                                terms.Add(term.ToLower());
+                                terms.Add(line.Substring(i - termStart, termStart).ToLower());
                             }
 
                             termStart = 0;
@@ -130,8 +126,7 @@ namespace BooleanSearch
                         {
                             if (termStart > 0)
                             {
-                                term = line.Substring(i - termStart, termStart);
-                                terms.Add(term.ToLower());
+                                terms.Add(line.Substring(i - termStart, termStart).ToLower());
                             }
 
                             notebook.Model = line.Substring(descriptionStart, i - descriptionStart);
@@ -184,23 +179,6 @@ namespace BooleanSearch
             bf.Serialize(ms, TestObject);
             Array = ms.ToArray();
             return Array.Length;
-        }
-
-        public struct Conditional
-        {
-            public int[] SearchResult { get; set; }
-
-            public string Term { get; set; }
-
-            public Expression Expression { get; set; }
-        }
-
-        public enum Expression
-        {
-            AND,
-            OR,
-            ANDNOT,
-            ORNOT
         }
 
         public struct Notebook
