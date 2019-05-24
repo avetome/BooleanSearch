@@ -110,8 +110,6 @@ namespace BooleanSearch
                     var notebook = new Notebook() { };
                     var descriptionStart = i;
 
-                    // TODO: reuse this array.
-                    var terms = new List<string>();
                     int termStart = 0;
 
                     // We look on brand and model same way, just because we don't need any ranging yet
@@ -129,7 +127,10 @@ namespace BooleanSearch
                         {
                             if (termStart > 0)
                             {
-                                terms.Add(line.Substring(i - termStart, termStart).ToLower());
+                                AddToInvertedIndex(
+                                    line.Substring(i - termStart, termStart).ToLower(),
+                                    id,
+                                    ref invertedIndex);
                             }
 
                             termStart = 0;
@@ -145,28 +146,16 @@ namespace BooleanSearch
                         {
                             if (termStart > 0)
                             {
-                                terms.Add(line.Substring(i - termStart, termStart).ToLower());
+                                AddToInvertedIndex(
+                                    line.Substring(i - termStart, termStart).ToLower(),
+                                    id,
+                                    ref invertedIndex);
                             }
 
                             notebook.Model = line.Substring(descriptionStart, i - descriptionStart);
                             notebooks.Add(id, notebook);
 
                             break;
-                        }
-                    }
-
-                    foreach (var t in terms)
-                    {
-                        if (invertedIndex.ContainsKey(t))
-                        {
-                            if (!invertedIndex[t].Any(l => l == id))
-                            {
-                                invertedIndex[t].Add(id);
-                            }
-                        }
-                        else
-                        {
-                            invertedIndex[t] = new List<int>() { id };
                         }
                     }
 
@@ -245,6 +234,21 @@ namespace BooleanSearch
 
             Console.WriteLine($"Finded {result.Count} results. Time: {stopWatch.ElapsedMilliseconds} ms.");
             Console.WriteLine();
+        }
+
+        private static void AddToInvertedIndex(string term, int id, ref Dictionary<string, List<int>> invertedIndex)
+        {
+            if (invertedIndex.ContainsKey(term))
+            {
+                if (!invertedIndex[term].Any(l => l == id))
+                {
+                    invertedIndex[term].Add(id);
+                }
+            }
+            else
+            {
+                invertedIndex[term] = new List<int>() { id };
+            }
         }
     }
 }
