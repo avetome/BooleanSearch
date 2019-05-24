@@ -50,11 +50,30 @@ namespace BooleanSearch
             // just for fun
             PrintSomeStatistics(ref invertedIndex);
 
-            // demo search "apple and 15"
-            DemoSearch(ref invertedIndex, ref notebooks);
+            // Some demo searches
+            DemoSearch("apple && 13", ref notebooks, () => {
+                var r1 = FindInIndex("apple", ref invertedIndex);
+                var r2 = FindInIndex("13", ref invertedIndex);
 
-            // demo search "iru or samsung"
-            DemoSearch2(ref invertedIndex, ref notebooks);
+                return r1.Intersect(r2).ToList();
+            });
+
+            DemoSearch("iru || samsung", ref notebooks, () => {
+                var r1 = FindInIndex("iru", ref invertedIndex);
+                var r2 = FindInIndex("samsung", ref invertedIndex);
+
+                return r1.Concat(r2).ToList();
+            });
+
+            DemoSearch("apple air && ! 11 && ! 11.6", ref notebooks, () =>
+            {
+                var r1 = FindInIndex("apple", ref invertedIndex);
+                var r2 = FindInIndex("air", ref invertedIndex);
+                var r3 = FindInIndex("11", ref invertedIndex);
+                var r4 = FindInIndex("11.6", ref invertedIndex);
+
+                return r1.Intersect(r2).Except(r3).Except(r4).ToList();
+            });
 
             Console.ReadKey();
         }
@@ -202,54 +221,29 @@ namespace BooleanSearch
         }
 
         private static void DemoSearch(
-            ref Dictionary<string, List<int>> invertedIndex,
-            ref Dictionary<int, Notebook> notebooks)
+            string searchText,
+            ref Dictionary<int, Notebook> notebooks,
+            Func<List<int>> func)
         {
-            var appleRes = FindInIndex("apple", ref invertedIndex);
-            var thirteenRes = FindInIndex("13", ref invertedIndex);
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
 
-            var appleAndthirteen = appleRes.Intersect(thirteenRes).ToList();
+            var result = func();
+
+            stopWatch.Stop();
 
             Console.WriteLine();
-            Console.WriteLine("Demo version is limited. You can enter on one words on each condition. Conditional is '&', '||' and '!'. No brackets.");
-            Console.WriteLine();
 
-            // TODO: we don't care about "Apple MacBook 12" and "Apple MacBook 12.0" case yet.
-            Console.WriteLine($"For example, request 'apple && 13'. Press any key to run search...");
+            Console.WriteLine($"For example, request \"{searchText}\": Press any key to run search...");
             Console.ReadKey();
 
-            foreach (var id in appleAndthirteen)
+            foreach (var id in result)
             {
                 var notebook = notebooks[id];
                 Console.WriteLine($"Id {id}. Brand {notebooks[id].Brand}, Model {notebooks[id].Model}");
             }
 
-            Console.WriteLine($"Finded {appleAndthirteen.Count} results");
-            Console.WriteLine();
-        }
-
-        private static void DemoSearch2(
-            ref Dictionary<string, List<int>> invertedIndex,
-            ref Dictionary<int, Notebook> notebooks)
-        {
-            var iruRes = FindInIndex("iru", ref invertedIndex);
-            var samsungRes = FindInIndex("samsung", ref invertedIndex);
-
-            var iruOrsamsung = samsungRes.Concat(iruRes).ToList();
-
-            Console.WriteLine();
-
-            // TODO: we don't care about "Apple MacBook 12" and "Apple MacBook 12.0" case yet.
-            Console.WriteLine($"For example, request 'iru || samsung':. Press any key to run search...");
-            Console.ReadKey();
-
-            foreach (var id in iruOrsamsung)
-            {
-                var notebook = notebooks[id];
-                Console.WriteLine($"Id {id}. Brand {notebooks[id].Brand}, Model {notebooks[id].Model}");
-            }
-
-            Console.WriteLine($"Finded {iruOrsamsung.Count} results");
+            Console.WriteLine($"Finded {result.Count} results. Time: {stopWatch.ElapsedMilliseconds} ms.");
             Console.WriteLine();
         }
     }
