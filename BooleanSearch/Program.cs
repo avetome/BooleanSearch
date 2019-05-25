@@ -23,7 +23,8 @@ namespace BooleanSearch
     {
         public static void Main(string[] args)
         {
-            const string Filename = "notebooks_210000.csv";
+            // const string Filename = "notebooks_210000.csv";
+            const string Filename = "notebooks.csv";
 
             /*var arguments = new List<string>() { "--generate", "210000" };
             args = arguments.ToArray();*/
@@ -171,7 +172,7 @@ namespace BooleanSearch
                         }
                     }
 
-                    if (counter % 5000 == 0)
+                    if (counter > 0 && counter % 5000 == 0)
                     {
                         Console.WriteLine($"Indexing {counter} lines...");
                     }
