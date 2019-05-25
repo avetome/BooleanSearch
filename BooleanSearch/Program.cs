@@ -23,7 +23,19 @@ namespace BooleanSearch
     {
         public static void Main(string[] args)
         {
-            const string Filename = "notebooks.csv";
+            const string Filename = "notebooks_210000.csv";
+
+            /*var arguments = new List<string>() { "--generate", "210000" };
+            args = arguments.ToArray();*/
+
+            if (args.Count() >= 2 && args[0] == "--generate")
+            {
+                if (int.TryParse(args[1], out var number))
+                {
+                    GenerateDataFile(Filename, number);
+                    return;
+                }
+            }
 
             var notebooks = new Dictionary<int, Notebook>();
             var invertedIndex = new Dictionary<string, List<int>>();
@@ -159,6 +171,11 @@ namespace BooleanSearch
                         }
                     }
 
+                    if (counter % 5000 == 0)
+                    {
+                        Console.WriteLine($"Indexing {counter} lines...");
+                    }
+
                     counter++;
                 }
             }
@@ -249,6 +266,67 @@ namespace BooleanSearch
             {
                 invertedIndex[term] = new List<int>() { id };
             }
+        }
+
+        private static void GenerateDataFile(string filename, int count)
+        {
+            Console.WriteLine($"Generating data file with {count} notebooks");
+
+            var notebooks = new List<string>();
+
+            var notebooksInFileCount = ReadNotebooks(filename, ref notebooks);
+
+            var newfilename = $"notebooks_{count}.csv";
+            var rnd = new Random();
+            var idHash = new HashSet<int>();
+
+            var j = 0;
+
+            using (StreamWriter file = new StreamWriter(newfilename))
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    if (j == notebooksInFileCount)
+                    {
+                        j = 0;
+                    }
+
+                    var id =  rnd.Next(0, 90000000);
+
+                    while(idHash.Contains(id))
+                    {
+                        id = rnd.Next(0, 90000000);
+                    }
+
+                    idHash.Add(id);
+
+                    file.WriteLine($"{id},{notebooks[j++]}");
+                }
+            }
+        }
+
+        private static int ReadNotebooks(string filename, ref List<string> notebooks)
+        {
+            int counter = 0;
+            string line;
+
+            using (StreamReader file = new StreamReader(filename))
+            {
+                while ((line = file.ReadLine()) != null)
+                {
+                    var i = 0;
+                    while (line[i] != ',' && i < line.Length)
+                    {
+                        i++;
+                    }
+
+                    notebooks.Add(line.Substring(++i));
+
+                    counter++;
+                }
+            }
+
+            return counter;
         }
     }
 }
