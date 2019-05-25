@@ -1,5 +1,6 @@
 ﻿using BooleanRetrieval.Logic.Indexing;
 using BooleanRetrieval.Logic.QueryParsing;
+using BooleanRetrieval.Logic.Searching;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -62,60 +63,13 @@ namespace BooleanRetrieval
 
             Console.WriteLine();
 
-            var parser = new SimpleQueryParser("!iru && smsung");
-            var parsedQuery = parser.SimpleParse();
+            stopWatch.Reset();
+            stopWatch.Start();
 
-            foreach (var parsed in parsedQuery)
-            {
-                Console.Write($"{parsed} ");
-            }
+            var searcher = new SimpleSearcher(indexer);
+            var result = searcher.Search("iru || samsung");
 
-            var i = 0;
-            var result = new List<int>();
-            while (i < parsedQuery.Length)
-            {
-                var invertedFirstArg = parsedQuery[i] == "NOT";
-
-                i = invertedFirstArg ? ++i : i;
-
-                if (invertedFirstArg)
-                {
-                    result = indexer.Notebooks.Keys.Except(indexer.FindInIndex(parsedQuery[i++])).ToList();
-                }
-                else
-                {
-                    result = indexer.FindInIndex(parsedQuery[i++]);
-                }
-
-                if (parsedQuery[i] == "AND")
-                {
-                    i++;
-
-                    if (parsedQuery[i] == "NOT")
-                    {
-                        result = result.Except(indexer.FindInIndex(parsedQuery[++i])).ToList();
-                    }
-                    else
-                    {
-                        result = result.Intersect(indexer.FindInIndex(parsedQuery[i])).ToList();
-                    }
-                }
-                else if (parsedQuery[i] == "OR")
-                {
-                    i++;
-
-                    if (parsedQuery[i] == "NOT")
-                    {
-                        result = result.Concat(indexer.Notebooks.Keys.Except(indexer.FindInIndex(parsedQuery[++i]))).ToList();
-                    }
-                    else
-                    {
-                        result = result.Concat(indexer.FindInIndex(parsedQuery[i])).ToList();
-                    }
-                }
-
-                i++;
-            }
+            stopWatch.Stop();
 
             Console.WriteLine();
             var maxShow = Math.Min(result.Count, 10);
@@ -132,7 +86,7 @@ namespace BooleanRetrieval
                 Console.WriteLine();
             }
 
-            Console.WriteLine($"Total results: {result.Count}.");
+            Console.WriteLine($"Total results: {result.Count}. Search time: {stopWatch.ElapsedMilliseconds} ms.");
             Console.ReadLine();
 
             // Some demo searches
@@ -212,22 +166,7 @@ namespace BooleanRetrieval
             }
 
             Console.WriteLine();
-            Console.WriteLine($"Total results: {result.Count}.");
-        }
-
-        private static void AddToInvertedIndex(string term, int id, ref Dictionary<string, HashSet<int>> invertedIndex)
-        {
-            if (invertedIndex.ContainsKey(term))
-            {
-                if (!invertedIndex[term].Contains(id))
-                {
-                    invertedIndex[term].Add(id);
-                }
-            }
-            else
-            {
-                invertedIndex[term] = new HashSet<int>() { id };
-            }
+            Console.WriteLine($"Total results: {result.Count}. Search time: {stopWatch.ElapsedMilliseconds} ms.");
         }
 
         private static void GenerateDataFile(string filename, int count)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
@@ -8,8 +9,9 @@ namespace BooleanRetrieval.Logic.Indexing
 {
     /// <summary>
     /// Build a simple inverted index on file and can search on index.
+    /// In real live we'll have index and indexBuilder separatly, but here...
     /// </summary>
-    public class InvertedIndexer
+    public class InvertedIndexer : IIndexer
     {
         private Dictionary<int, Notebook> _notebooks;
         private Dictionary<string, HashSet<int>> _invertedIndex;
@@ -118,6 +120,11 @@ namespace BooleanRetrieval.Logic.Indexing
             }
 
             return result;
+        }
+
+        public List<int> GetAllIds()
+        {
+            return _notebooks.Keys.ToList();
         }
 
         private void AddToInvertedIndex(string term, int id)
