@@ -14,12 +14,12 @@ namespace BooleanRetrieval.Logic.QueryParsing
     {
         private Tokenizer _tokenizer;
 
-        public QueryParser(Tokenizer tokenizer)
+        public SimpleQueryParser(Tokenizer tokenizer)
         {
             _tokenizer = tokenizer;
         }
 
-        public QueryParser(string str) : this(new Tokenizer(str))
+        public SimpleQueryParser(string str) : this(new Tokenizer(str))
         {
         }
 

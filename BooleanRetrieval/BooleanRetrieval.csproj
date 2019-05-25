@@ -11,4 +11,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BooleanRetrieval.Logic\BooleanRetrieval.Logic.csproj" />
+  </ItemGroup>
+
 </Project>
