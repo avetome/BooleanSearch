@@ -1,7 +1,6 @@
 ﻿using BooleanRetrieval.Logic.Indexing;
 using BooleanRetrieval.Logic.DataGenerating;
 using BooleanRetrieval.Logic.Searching;
-using BooleanRetrieval.Logic.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,11 +12,7 @@ using BooleanRetrieval.Logic.DataSource;
 namespace BooleanRetrieval
 {
     /// <summary>
-    /// First draft. Work in progress...
-    /// 
     /// TODO:
-    /// * Query parsing and build expression tree.
-    /// * Move all code to it own classes, separate user interaction, getting data, indexing and searching from each other.
     /// * Save index on disk to restore it on next start. Check index file date and source file modify date and rebuild index if needed.
     /// * Write unit tests
     /// * Clean up the code.
@@ -28,8 +23,8 @@ namespace BooleanRetrieval
     {
         public static void Main(string[] args)
         {
-            const string Filename = "notebooks_210000.csv";
-            // const string Filename = "notebooks.csv";
+            // const string Filename = "notebooks_210000.csv";
+            const string Filename = "notebooks.csv";
 
             /*var arguments = new List<string>() { "--generate", "210000" };
             args = arguments.ToArray();*/
