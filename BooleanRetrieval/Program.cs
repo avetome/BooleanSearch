@@ -1,11 +1,12 @@
-﻿using System;
+﻿using BooleanRetrieval.Logic.QueryParsing;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace BooleanSearch
+namespace BooleanRetrieval
 {
     /// <summary>
     /// First draft. Work in progress...
@@ -65,7 +66,7 @@ namespace BooleanSearch
 
             Console.WriteLine();
 
-            var parser = new QueryParser("!iru || samsung");
+            var parser = new SimpleQueryParser("!iru || samsung");
             var parsedQuery = parser.SimpleParse();
 
             foreach (var parsed in parsedQuery)
