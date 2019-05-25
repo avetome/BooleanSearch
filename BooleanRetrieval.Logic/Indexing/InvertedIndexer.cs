@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BooleanRetrieval.Logic.DataSource;
+using BooleanRetrieval.Logic.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,22 +15,65 @@ namespace BooleanRetrieval.Logic.Indexing
     /// </summary>
     public class InvertedIndexer : IIndexer
     {
-        private Dictionary<int, Notebook> _notebooks;
         private Dictionary<string, HashSet<int>> _invertedIndex;
-
-        /// <summary>
-        /// Looks like bad move store notebooks data in index. But for simplification this demo we can live with it.
-        /// </summary>
-        public Dictionary<int, Notebook> Notebooks => _notebooks;
 
         /// <summary>
         /// Sharing internal index structure to public it's also looks like bad move. But see above.
         /// </summary>
         public Dictionary<string, HashSet<int>> Index => _invertedIndex;
 
+        public void BuildIndex(INotebookDataSource dataSource)
+        {
+            _invertedIndex = new Dictionary<string, HashSet<int>>();
+
+            string line;
+
+            var notebooks = dataSource.GetAllNotebook();
+
+            foreach(var item in notebooks)
+            {
+                // We look on brand and model same way, just because we don't need any ranging yet
+                line = item.Value.Brand + "," + item.Value.Model;
+
+                int termStart = 0;
+
+                var i = 0;
+
+                while (true)
+                {
+                    // TODO: Move symbols to special constants
+                    if (char.IsLetterOrDigit(line[i])
+                        || line[i] == '-'
+                        || line[i] == '.'
+                        || line[i] == '/')
+                    {
+                        termStart++;
+                    }
+                    else
+                    {
+                        if (termStart > 0)
+                        {
+                            AddToInvertedIndex(line.Substring(i - termStart, termStart).ToLower(), item.Key);
+                        }
+
+                        termStart = 0;
+                    }
+                    
+                    if (++i == line.Length)
+                    {
+                        if (termStart > 0)
+                        {
+                            AddToInvertedIndex(line.Substring(i - termStart, termStart).ToLower(), item.Key);
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+
         public void BuildIndex(string filename)
         {
-            _notebooks = new Dictionary<int, Notebook>();
             _invertedIndex = new Dictionary<string, HashSet<int>>();
 
             int counter = 0;
@@ -92,8 +137,6 @@ namespace BooleanRetrieval.Logic.Indexing
                                 AddToInvertedIndex(line.Substring(i - termStart, termStart).ToLower(), id);
                             }
 
-                            notebook.Model = line.Substring(descriptionStart, i - descriptionStart);
-                            _notebooks.Add(id, notebook);
 
                             break;
                         }
@@ -101,7 +144,7 @@ namespace BooleanRetrieval.Logic.Indexing
 
                     if (counter > 0 && counter % 5000 == 0)
                     {
-                        Console.WriteLine($"Indexing {counter} lines...");
+                        // Console.WriteLine($"Indexing {counter} lines...");
                     }
 
                     counter++;
@@ -120,11 +163,6 @@ namespace BooleanRetrieval.Logic.Indexing
             }
 
             return result;
-        }
-
-        public List<int> GetAllIds()
-        {
-            return _notebooks.Keys.ToList();
         }
 
         private void AddToInvertedIndex(string term, int id)

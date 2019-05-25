@@ -9,7 +9,5 @@ namespace BooleanRetrieval.Logic.Indexing
         void BuildIndex(string filename);
 
         List<int> FindInIndex(string text);
-
-        List<int> GetAllIds();
     }
 }

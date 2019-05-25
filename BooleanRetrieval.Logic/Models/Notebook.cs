@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BooleanRetrieval.Logic.Indexing
+namespace BooleanRetrieval.Logic.Models
 {
     public struct Notebook
     {

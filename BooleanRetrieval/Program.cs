@@ -1,12 +1,14 @@
 ﻿using BooleanRetrieval.Logic.Indexing;
 using BooleanRetrieval.Logic.DataGenerating;
 using BooleanRetrieval.Logic.Searching;
+using BooleanRetrieval.Logic.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using BooleanRetrieval.Logic.DataSource;
 
 namespace BooleanRetrieval
 {
@@ -26,8 +28,8 @@ namespace BooleanRetrieval
     {
         public static void Main(string[] args)
         {
-            //const string Filename = "notebooks_210000.csv";
-            const string Filename = "notebooks.csv";
+            const string Filename = "notebooks_210000.csv";
+            // const string Filename = "notebooks.csv";
 
             /*var arguments = new List<string>() { "--generate", "210000" };
             args = arguments.ToArray();*/
@@ -40,20 +42,22 @@ namespace BooleanRetrieval
                     return;
                 }
             }
-
+            
             Console.WriteLine($"Start indexing");
             
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
 
+            var storage = new NotebooksFileDataSource(Filename);
+
             var indexer = new InvertedIndexer();
-            indexer.BuildIndex(Filename);
+            indexer.BuildIndex(storage);
 
             stopWatch.Stop();
             Console.WriteLine($"Indexing is finished in {stopWatch.ElapsedMilliseconds} ms");
 
             Console.WriteLine();
-            Console.WriteLine($"Notebooks: {indexer.Notebooks.Count}.");
+            Console.WriteLine($"Notebooks: {storage.Notebooks.Count}.");
             Console.WriteLine($"Inverted index terms size: {indexer.Index.Keys.Count}.");
             Console.WriteLine($"Inverted index memory size: {GetObjectSize(indexer.Index)}.");
             Console.WriteLine();
@@ -66,7 +70,7 @@ namespace BooleanRetrieval
             stopWatch.Reset();
             stopWatch.Start();
 
-            var searcher = new SimpleSearcher(indexer);
+            var searcher = new SimpleSearcher(indexer, storage);
             var result = searcher.Search("iru || samsung");
 
             stopWatch.Stop();
@@ -79,7 +83,7 @@ namespace BooleanRetrieval
                 Console.WriteLine($"First {maxShow} results: ");
                 for (var r = 0; r < 10; r++)
                 {
-                    var notebook = indexer.Notebooks[result[r]];
+                    var notebook = storage.Notebooks[result[r]];
                     Console.WriteLine($"Id {result[r]}. Brand {notebook.Brand}, Model {notebook.Model}");
                 }
 
@@ -90,21 +94,21 @@ namespace BooleanRetrieval
             Console.ReadLine();
 
             // Some demo searches
-            DemoSearch("apple && 13", indexer.Notebooks, () => {
+            DemoSearch("apple && 13", storage.Notebooks, () => {
                 var r1 = indexer.FindInIndex("apple");
                 var r2 = indexer.FindInIndex("13");
 
                 return r1.Intersect(r2).ToList();
             });
 
-            DemoSearch("iru || samsung", indexer.Notebooks, () => {
+            DemoSearch("iru || samsung", storage.Notebooks, () => {
                 var r1 = indexer.FindInIndex("iru");
                 var r2 = indexer.FindInIndex("samsung");
 
                 return r1.Concat(r2).ToList();
             });
 
-            DemoSearch("apple air && ! 11 && ! 11.6", indexer.Notebooks, () =>
+            DemoSearch("apple air && ! 11 && ! 11.6", storage.Notebooks, () =>
             {
                 var r1 = indexer.FindInIndex("apple");
                 var r2 = indexer.FindInIndex("air");
