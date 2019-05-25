@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BooleanSearch", "BooleanSearch\BooleanSearch.csproj", "{5D72869F-AFFB-49AD-926B-F9B46085C68A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BooleanRetrieval", "BooleanRetrieval\BooleanRetrieval.csproj", "{5D72869F-AFFB-49AD-926B-F9B46085C68A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
