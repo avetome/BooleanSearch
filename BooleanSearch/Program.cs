@@ -38,7 +38,7 @@ namespace BooleanSearch
             }
 
             var notebooks = new Dictionary<int, Notebook>();
-            var invertedIndex = new Dictionary<string, List<int>>();
+            var invertedIndex = new Dictionary<string, HashSet<int>>();
 
             Console.WriteLine($"Filename: {Filename}");
             Console.WriteLine();
@@ -92,7 +92,7 @@ namespace BooleanSearch
 
         private static int ParseFileAndBuildIndex(
             string filename,
-            ref Dictionary<string, List<int>> invertedIndex,
+            ref Dictionary<string, HashSet<int>> invertedIndex,
             ref Dictionary<int, Notebook> notebooks)
         {
             int counter = 0;
@@ -183,7 +183,7 @@ namespace BooleanSearch
             return counter;
         }
 
-        private static List<int> FindInIndex(string text, ref Dictionary<string, List<int>> index)
+        private static List<int> FindInIndex(string text, ref Dictionary<string, HashSet<int>> index)
         {
             List<int> result = null;
 
@@ -213,7 +213,7 @@ namespace BooleanSearch
             public string Model { get; set; }
         }
 
-        private static void PrintSomeStatistics(ref Dictionary<string, List<int>> invertedIndex)
+        private static void PrintSomeStatistics(ref Dictionary<string, HashSet<int>> invertedIndex)
         {
             var statsCountToShow = 10;
             var stats = invertedIndex.Select(index => (term: index.Key, count: index.Value.Count())).OrderByDescending(t => t.count).ToList();
@@ -253,18 +253,18 @@ namespace BooleanSearch
             Console.WriteLine();
         }
 
-        private static void AddToInvertedIndex(string term, int id, ref Dictionary<string, List<int>> invertedIndex)
+        private static void AddToInvertedIndex(string term, int id, ref Dictionary<string, HashSet<int>> invertedIndex)
         {
             if (invertedIndex.ContainsKey(term))
             {
-                if (!invertedIndex[term].Any(l => l == id))
+                if (!invertedIndex[term].Contains(id))
                 {
                     invertedIndex[term].Add(id);
                 }
             }
             else
             {
-                invertedIndex[term] = new List<int>() { id };
+                invertedIndex[term] = new HashSet<int>() { id };
             }
         }
 
