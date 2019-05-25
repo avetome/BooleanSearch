@@ -23,7 +23,7 @@ namespace BooleanSearch
     {
         public static void Main(string[] args)
         {
-            // const string Filename = "notebooks_210000.csv";
+            //const string Filename = "notebooks_210000.csv";
             const string Filename = "notebooks.csv";
 
             /*var arguments = new List<string>() { "--generate", "210000" };
@@ -52,7 +52,7 @@ namespace BooleanSearch
             var counter = ParseFileAndBuildIndex(Filename, ref invertedIndex, ref notebooks);
 
             stopWatch.Stop();
-            Console.WriteLine($"Indexing is finish in {stopWatch.ElapsedMilliseconds} ms");
+            Console.WriteLine($"Indexing is finished in {stopWatch.ElapsedMilliseconds} ms");
 
             Console.WriteLine();
             Console.WriteLine($"Lines: {counter}.");
@@ -63,13 +63,83 @@ namespace BooleanSearch
             // just for fun
             PrintSomeStatistics(ref invertedIndex);
 
+            Console.WriteLine();
+
+            var parser = new QueryParser("!iru || samsung");
+            var parsedQuery = parser.SimpleParse();
+
+            foreach (var parsed in parsedQuery)
+            {
+                Console.Write($"{parsed} ");
+            }
+
+            var i = 0;
+            var result = new List<int>();
+            while (i < parsedQuery.Length)
+            {
+                var invertedFirstArg = parsedQuery[i] == "NOT";
+
+                i = invertedFirstArg ? ++i : i;
+
+                if (invertedFirstArg)
+                {
+                    result = notebooks.Keys.Except(FindInIndex(parsedQuery[i++], ref invertedIndex)).ToList();
+                }
+                else
+                {
+                    result = FindInIndex(parsedQuery[i++], ref invertedIndex);
+                }
+
+                if (parsedQuery[i] == "AND")
+                {
+                    i++;
+
+                    if (parsedQuery[i] == "NOT")
+                    {
+                        result = result.Except(FindInIndex(parsedQuery[++i], ref invertedIndex)).ToList();
+                    }
+                    else
+                    {
+                        result = result.Intersect(FindInIndex(parsedQuery[i], ref invertedIndex)).ToList();
+                    }
+                }
+                else if (parsedQuery[i] == "OR")
+                {
+                    i++;
+
+                    if (parsedQuery[i] == "NOT")
+                    {
+                        result = result.Concat(notebooks.Keys.Except(FindInIndex(parsedQuery[++i], ref invertedIndex))).ToList();
+                    }
+                    else
+                    {
+                        result = result.Concat(FindInIndex(parsedQuery[i], ref invertedIndex)).ToList();
+                    }
+                }
+
+                i++;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("First 10 results: ");
+            for(var r = 0; r < 10; r++)
+            {
+                var notebook = notebooks[result[r]];
+                Console.WriteLine($"Id {result[r]}. Brand {notebook.Brand}, Model {notebook.Model}");
+            }
+
+            Console.WriteLine();
+            Console.WriteLine($"Total results: {result.Count}.");
+
+            Console.ReadLine();
+
             // Some demo searches
-            DemoSearch("apple && 13", ref notebooks, () => {
+            /*DemoSearch("apple && 13", ref notebooks, () => {
                 var r1 = FindInIndex("apple", ref invertedIndex);
                 var r2 = FindInIndex("13", ref invertedIndex);
 
                 return r1.Intersect(r2).ToList();
-            });
+            });*/
 
             DemoSearch("iru || samsung", ref notebooks, () => {
                 var r1 = FindInIndex("iru", ref invertedIndex);
@@ -232,6 +302,9 @@ namespace BooleanSearch
             ref Dictionary<int, Notebook> notebooks,
             Func<List<int>> func)
         {
+            Console.WriteLine($"For example, request \"{searchText}\": Press any key to run search...");
+            Console.ReadKey();
+
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
 
@@ -241,17 +314,16 @@ namespace BooleanSearch
 
             Console.WriteLine();
 
-            Console.WriteLine($"For example, request \"{searchText}\": Press any key to run search...");
-            Console.ReadKey();
-
-            foreach (var id in result)
+            Console.WriteLine();
+            Console.WriteLine("First 10 results: ");
+            for (var r = 0; r < 10; r++)
             {
-                var notebook = notebooks[id];
-                Console.WriteLine($"Id {id}. Brand {notebooks[id].Brand}, Model {notebooks[id].Model}");
+                var notebook = notebooks[result[r]];
+                Console.WriteLine($"Id {result[r]}. Brand {notebook.Brand}, Model {notebook.Model}");
             }
 
-            Console.WriteLine($"Finded {result.Count} results. Time: {stopWatch.ElapsedMilliseconds} ms.");
             Console.WriteLine();
+            Console.WriteLine($"Total results: {result.Count}.");
         }
 
         private static void AddToInvertedIndex(string term, int id, ref Dictionary<string, HashSet<int>> invertedIndex)
