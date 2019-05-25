@@ -24,21 +24,29 @@ namespace BooleanRetrieval.Logic.Searching
             var parser = new SimpleQueryParser(query);
             var parsedQuery = parser.SimpleParse();
 
+            if (parsedQuery.Length == 1)
+            {
+                return _indexer.FindInIndex(parsedQuery[0]);
+            }
+
             var i = 0;
             var result = new List<int>();
             while (i < parsedQuery.Length)
             {
-                var invertedFirstArg = parsedQuery[i] == "NOT";
-
-                i = invertedFirstArg ? ++i : i;
-
-                if (invertedFirstArg)
+                if (i == 0)
                 {
-                    result = _dataSource.GetAllIds().Except(_indexer.FindInIndex(parsedQuery[i++])).ToList();
-                }
-                else
-                {
-                    result = _indexer.FindInIndex(parsedQuery[i++]);
+                    var invertedFirstArg = parsedQuery[i] == "NOT";
+
+                    i = invertedFirstArg ? ++i : i;
+
+                    if (invertedFirstArg)
+                    {
+                        result = _dataSource.GetAllIds().Except(_indexer.FindInIndex(parsedQuery[i++])).ToList();
+                    }
+                    else
+                    {
+                        result = _indexer.FindInIndex(parsedQuery[i++]);
+                    }
                 }
 
                 if (parsedQuery[i] == "AND")

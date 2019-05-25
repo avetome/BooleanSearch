@@ -66,33 +66,9 @@ namespace BooleanRetrieval
             PrintSomeStatistics(indexer.Index);
 
             Console.WriteLine();
+            UserQueryMode(new SimpleSearcher(indexer, storage), storage);
 
-            stopWatch.Reset();
-            stopWatch.Start();
-
-            var searcher = new SimpleSearcher(indexer, storage);
-            var result = searcher.Search("iru || samsung");
-
-            stopWatch.Stop();
-
-            Console.WriteLine();
-            var maxShow = Math.Min(result.Count, 10);
-
-            if (maxShow > 0)
-            {
-                Console.WriteLine($"First {maxShow} results: ");
-                for (var r = 0; r < 10; r++)
-                {
-                    var notebook = storage.Notebooks[result[r]];
-                    Console.WriteLine($"Id {result[r]}. Brand {notebook.Brand}, Model {notebook.Model}");
-                }
-
-                Console.WriteLine();
-            }
-
-            Console.WriteLine($"Total results: {result.Count}. Search time: {stopWatch.ElapsedMilliseconds} ms.");
-            Console.ReadLine();
-
+            /*
             // Some demo searches
             DemoSearch("apple && 13", storage.Notebooks, () => {
                 var r1 = indexer.FindInIndex("apple");
@@ -116,9 +92,59 @@ namespace BooleanRetrieval
                 var r4 = indexer.FindInIndex("11.6");
 
                 return r1.Intersect(r2).Except(r3).Except(r4).ToList();
-            });
+            });*/
 
             Console.ReadKey();
+        }
+
+        private static void UserQueryMode(SimpleSearcher searcher, NotebooksFileDataSource storage)
+        {
+            Console.CancelKeyPress += new ConsoleCancelEventHandler(CancelHandler);
+            Stopwatch stopWatch = new Stopwatch();
+
+            while (true)
+            {
+                Console.WriteLine();
+                Console.Write("Enter the query: ");
+                string query = Console.ReadLine();
+                stopWatch.Reset();
+                stopWatch.Start();
+
+                try
+                {
+                    var result = searcher.Search(query);
+
+                    stopWatch.Stop();
+
+                    PrintResults(result, stopWatch.ElapsedMilliseconds, storage);
+                }
+                catch
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Invalid query format");
+                    Console.WriteLine();
+                }
+            }
+        }
+
+        private static void PrintResults(List<int> result, long timeMeasure, NotebooksFileDataSource storage)
+        {
+            Console.WriteLine();
+            var maxShow = Math.Min(result.Count, 10);
+
+            if (maxShow > 0)
+            {
+                Console.WriteLine($"First {maxShow} results: ");
+                for (var r = 0; r < 10; r++)
+                {
+                    var notebook = storage.Notebooks[result[r]];
+                    Console.WriteLine($"Id {result[r]}. Brand {notebook.Brand}, Model {notebook.Model}");
+                }
+
+                Console.WriteLine();
+            }
+
+            Console.WriteLine($"Total results: {result.Count}. Search time: {timeMeasure} ms.");
         }
 
         private static int GetObjectSize(object TestObject)
@@ -146,7 +172,7 @@ namespace BooleanRetrieval
 
         private static void DemoSearch(
             string searchText,
-            Dictionary<int, Notebook> notebooks,
+            NotebooksFileDataSource storage,
             Func<List<int>> func)
         {
             Console.WriteLine($"For example, request \"{searchText}\": Press any key to run search...");
@@ -161,16 +187,14 @@ namespace BooleanRetrieval
 
             Console.WriteLine();
 
-            Console.WriteLine();
-            Console.WriteLine("First 10 results: ");
-            for (var r = 0; r < 10; r++)
-            {
-                var notebook = notebooks[result[r]];
-                Console.WriteLine($"Id {result[r]}. Brand {notebook.Brand}, Model {notebook.Model}");
-            }
+            PrintResults(result, stopWatch.ElapsedMilliseconds, storage);
+        }
 
-            Console.WriteLine();
-            Console.WriteLine($"Total results: {result.Count}. Search time: {stopWatch.ElapsedMilliseconds} ms.");
-        } 
+        private static void CancelHandler(object sender, ConsoleCancelEventArgs args)
+        {
+            Console.WriteLine("Exit application");
+
+            Environment.Exit(0);
+        }
     }
 }
