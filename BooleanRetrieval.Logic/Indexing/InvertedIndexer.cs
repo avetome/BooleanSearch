@@ -98,9 +98,6 @@ namespace BooleanRetrieval.Logic.Indexing
                         continue;
                     }
 
-                    var notebook = new Notebook() { };
-                    var descriptionStart = i;
-
                     int termStart = 0;
 
                     // We look on brand and model same way, just because we don't need any ranging yet
@@ -122,12 +119,6 @@ namespace BooleanRetrieval.Logic.Indexing
                             }
 
                             termStart = 0;
-                        }
-
-                        if (line[i] == ',')
-                        {
-                            notebook.Brand = line.Substring(descriptionStart, i - descriptionStart);
-                            descriptionStart = i + 1;
                         }
 
                         if (++i == line.Length)
