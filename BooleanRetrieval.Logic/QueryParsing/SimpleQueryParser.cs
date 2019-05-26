@@ -24,7 +24,7 @@ namespace BooleanRetrieval.Logic.QueryParsing
             var result = new List<string>();
 
             bool waitingTermOrNot = true;
-            bool waitionOperation = false;
+            bool waitingOperation = false;
             while (true)
             {
                 _tokenReader.NextToken();
@@ -46,7 +46,7 @@ namespace BooleanRetrieval.Logic.QueryParsing
                         result.Add(_tokenReader.Term);
 
                         waitingTermOrNot = false;
-                        waitionOperation = true;
+                        waitingOperation = true;
                     }
                     else if (_tokenReader.Token == Token.Not)
                     {
@@ -57,7 +57,7 @@ namespace BooleanRetrieval.Logic.QueryParsing
                         throw new Exception("Invalid search string format");
                     }
                 }
-                else if (waitionOperation)
+                else if (waitingOperation)
                 {
                     if (_tokenReader.Token == Token.And)
                     {
@@ -73,7 +73,7 @@ namespace BooleanRetrieval.Logic.QueryParsing
                     }
 
                     waitingTermOrNot = true;
-                    waitionOperation = false;
+                    waitingOperation = false;
                 }
             }
 

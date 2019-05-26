@@ -33,11 +33,7 @@ namespace BooleanRetrieval.Logic.Indexing
 
                 while (true)
                 {
-                    // TODO: Move symbols to special constants
-                    if (char.IsLetterOrDigit(line[i])
-                        || line[i] == '-'
-                        || line[i] == '.'
-                        || line[i] == '/')
+                    if (char.IsLetterOrDigit(line[i]) || SearchOption.AcceptableSymbols.Contains(line[i]))
                     {
                         termStart++;
                     }
