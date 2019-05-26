@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using BooleanRetrieval.Logic.DataSource;
+using BooleanRetrieval.Logic.QueryParsing;
 
 namespace BooleanRetrieval
 {
@@ -23,8 +24,11 @@ namespace BooleanRetrieval
     {
         public static void Main(string[] args)
         {
-            // const string Filename = "notebooks_210000.csv";
-            const string Filename = "notebooks.csv";
+            var parser = new EtQueryParser();
+            var parsed = parser.Parse("apple !13 !15");
+
+            const string Filename = "notebooks_210000.csv";
+            // const string Filename = "notebooks.csv";
 
             /*var arguments = new List<string>() { "--generate", "210000" };
             args = arguments.ToArray();*/
@@ -61,7 +65,7 @@ namespace BooleanRetrieval
             PrintSomeStatistics(index);
 
             Console.WriteLine();
-            UserQueryMode(new SimpleSearcher(index, storage), storage);
+            UserQueryMode(index, storage);
 
             /*
             // Some demo searches
@@ -92,10 +96,13 @@ namespace BooleanRetrieval
             Console.ReadKey();
         }
 
-        private static void UserQueryMode(SimpleSearcher searcher, NotebooksFileDataSource storage)
+        private static void UserQueryMode(InvertedIndex index, NotebooksFileDataSource storage)
         {
             Console.CancelKeyPress += new ConsoleCancelEventHandler(CancelHandler);
             Stopwatch stopWatch = new Stopwatch();
+
+            var simpleSearcher = new SimpleSearcher(index, storage);
+            var etSearcher = new EtSearcher(index, storage);
 
             while (true)
             {
@@ -107,10 +114,21 @@ namespace BooleanRetrieval
 
                 try
                 {
-                    var result = searcher.Search(query);
+                    var result = simpleSearcher.Search(query);
 
                     stopWatch.Stop();
 
+                    PrintResults(result, stopWatch.ElapsedMilliseconds, storage);
+
+                    stopWatch.Reset();
+                    stopWatch.Start();
+
+                    result = etSearcher.Search(query);
+
+                    stopWatch.Stop();
+
+                    Console.WriteLine();
+                    Console.Write("EtSearcher: ");
                     PrintResults(result, stopWatch.ElapsedMilliseconds, storage);
                 }
                 catch

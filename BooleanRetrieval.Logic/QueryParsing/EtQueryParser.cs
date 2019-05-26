@@ -9,6 +9,13 @@ namespace BooleanRetrieval.Logic.QueryParsing
     {
         private TokenReader _tokenReader;
 
+        /// <summary>
+        /// Functions to optimize expression query for faster searcher.
+        /// Maybe should be separated, but let's stay here for now.
+        /// </summary>
+        private List<Func<ExpressionTreeNode, ExpressionTreeNode>> _optimizeActions =
+            new List<Func<ExpressionTreeNode, ExpressionTreeNode>>() { TwoNotInAndRule };
+
         public ExpressionTreeNode Parse(string query)
         {
             _tokenReader = new TokenReader(query);
@@ -21,6 +28,8 @@ namespace BooleanRetrieval.Logic.QueryParsing
             {
                 throw new Exception("Invalid search string format");
             }
+
+            result = OptimizeTree(result);
 
             return result;
         }
@@ -115,6 +124,45 @@ namespace BooleanRetrieval.Logic.QueryParsing
             }
 
             return ExpressionTreeNode.CreateTerm(_tokenReader.Term);
+        }
+
+        private ExpressionTreeNode OptimizeTree(ExpressionTreeNode node)
+        {
+            if (node == null)
+            {
+                return null;
+            }
+
+            foreach(var action in _optimizeActions)
+            {
+                node = action(node);
+            }
+
+            node.Child1 = OptimizeTree(node.Child1);
+            node.Child2 = OptimizeTree(node.Child2);
+
+            return node;
+        }
+
+        /// <summary>
+        /// AND(NOT,NOT) -> NOT(OR)
+        /// </summary>
+        /// <param name="node"></param>
+        private static ExpressionTreeNode TwoNotInAndRule(ExpressionTreeNode node)
+        {
+            if (node == null)
+            {
+                return null;
+            }
+
+            if (node.Operation == "AND" && node.Child1.Operation == "NOT" && node.Child2.Operation == "NOT")
+            {
+                var andChild = ExpressionTreeNode.CreateOr(node.Child1.Child1, node.Child2.Child1);
+
+                node = ExpressionTreeNode.CreateNot(andChild);
+            }
+
+            return node;
         }
     }
 }

@@ -10,7 +10,7 @@ namespace BooleanRetrieval.Logic.Indexing
     [Serializable]
     public class InvertedIndex: Dictionary<string, HashSet<int>>
     {
-        public List<int> FindInIndex(string text)
+        public List<int> Find(string text)
         {
             // make a copy for list just in case...
             List<int> result = new List<int>();

@@ -24,7 +24,7 @@ namespace BooleanRetrieval.Logic.Searching
 
             if (parsedQuery.Length == 1)
             {
-                return _index.FindInIndex(parsedQuery[0]);
+                return _index.Find(parsedQuery[0]);
             }
 
             var i = 0;
@@ -39,11 +39,11 @@ namespace BooleanRetrieval.Logic.Searching
 
                     if (invertedFirstArg)
                     {
-                        result = _dataSource.GetAllIds().Except(_index.FindInIndex(parsedQuery[i++])).ToList();
+                        result = _dataSource.GetAllIds().Except(_index.Find(parsedQuery[i++])).ToList();
                     }
                     else
                     {
-                        result = _index.FindInIndex(parsedQuery[i++]);
+                        result = _index.Find(parsedQuery[i++]);
                     }
                 }
 
@@ -53,11 +53,11 @@ namespace BooleanRetrieval.Logic.Searching
 
                     if (parsedQuery[i] == "NOT")
                     {
-                        result = result.Except(_index.FindInIndex(parsedQuery[++i])).ToList();
+                        result = result.Except(_index.Find(parsedQuery[++i])).ToList();
                     }
                     else
                     {
-                        result = result.Intersect(_index.FindInIndex(parsedQuery[i])).ToList();
+                        result = result.Intersect(_index.Find(parsedQuery[i])).ToList();
                     }
                 }
                 else if (parsedQuery[i] == "OR")
@@ -66,11 +66,11 @@ namespace BooleanRetrieval.Logic.Searching
 
                     if (parsedQuery[i] == "NOT")
                     {
-                        result = result.Concat(_dataSource.GetAllIds().Except(_index.FindInIndex(parsedQuery[++i]))).ToList();
+                        result = result.Concat(_dataSource.GetAllIds().Except(_index.Find(parsedQuery[++i]))).ToList();
                     }
                     else
                     {
-                        result = result.Concat(_index.FindInIndex(parsedQuery[i])).ToList();
+                        result = result.Concat(_index.Find(parsedQuery[i])).ToList();
                     }
                 }
 
