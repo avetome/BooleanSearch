@@ -32,5 +32,15 @@ namespace BooleanRetrieval.Logic.QueryParsing
         {
             return new ExpressionTreeNode() { Operation = "AND", Child1 = child1, Child2 = child2 };
         }
+
+        public static ExpressionTreeNode CreateAllNode()
+        {
+            return new ExpressionTreeNode() { Operation = "ALL" };
+        }
+
+        public static ExpressionTreeNode CreateZeroNode()
+        {
+            return new ExpressionTreeNode() { Operation = "ZERO" };
+        }
     }
 }

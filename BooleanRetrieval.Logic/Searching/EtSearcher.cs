@@ -66,6 +66,16 @@ namespace BooleanRetrieval.Logic.Searching
                 return _dataSource.GetAllIds().Except(SearchInTree(node.Child1)).ToList();
             }
 
+            if (node.Operation == "ALL")
+            {
+                return _dataSource.GetAllIds();
+            }
+
+            if (node.Operation == "ZERO")
+            {
+                return new List<int>();
+            }
+
             throw new Exception("Invalid expression tree");
         }
     }
