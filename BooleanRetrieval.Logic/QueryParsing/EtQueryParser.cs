@@ -198,7 +198,8 @@ namespace BooleanRetrieval.Logic.QueryParsing
         }
 
         /// <summary>
-        /// AND(NOT, term) -> AND(term, NOT)
+        /// AND(NOT, term) -> AND(term, NOT).
+        /// It helps execute note more faster.
         /// </summary>
         /// <param name="node"></param>
         private static ExpressionTreeNode ReplaceFirstNotInAndRule(ExpressionTreeNode node, ref int count)
@@ -249,6 +250,12 @@ namespace BooleanRetrieval.Logic.QueryParsing
             return node;
         }
 
+        /// <summary>
+        /// AND(Node, ALL) -> Node
+        /// OR(Node, ALL) -> ALL
+        /// NOT(ALL) -> ZERO
+        /// </summary>
+        /// <returns></returns>
         private static ExpressionTreeNode HandleAllNode(ExpressionTreeNode node, ref int count)
         {
             if (node == null)
@@ -279,6 +286,12 @@ namespace BooleanRetrieval.Logic.QueryParsing
             return node;
         }
 
+        /// <summary>
+        /// AND(Node, ZERO) -> Zero
+        /// OR(Node, ZERO) -> Node
+        /// NOT(ZERO) -> ALL
+        /// </summary>
+        /// <returns></returns>
         private static ExpressionTreeNode HandleZeroNode(ExpressionTreeNode node, ref int count)
         {
             if (node == null)
