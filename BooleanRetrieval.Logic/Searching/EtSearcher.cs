@@ -47,10 +47,6 @@ namespace BooleanRetrieval.Logic.Searching
                 {
                     return SearchInTree(node.Child1).Except(SearchInTree(node.Child2, true)).ToList();
                 }
-                else if (node.Child1.Operation == "NOT")
-                {
-                    return SearchInTree(node.Child2).Except(SearchInTree(node.Child1, true)).ToList();
-                }
 
                 return SearchInTree(node.Child1).Intersect(SearchInTree(node.Child2)).ToList();
             }

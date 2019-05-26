@@ -14,7 +14,9 @@ namespace BooleanRetrieval.Logic.QueryParsing
         /// Maybe should be separated, but let's stay here for now.
         /// </summary>
         private List<Func<ExpressionTreeNode, ExpressionTreeNode>> _optimizeActions =
-            new List<Func<ExpressionTreeNode, ExpressionTreeNode>>() { TwoNotInAndRule };
+            new List<Func<ExpressionTreeNode, ExpressionTreeNode>>() {
+                TwoNotInAndRule,
+                ReplaceFirstNotInAndRule };
 
         public ExpressionTreeNode Parse(string query)
         {
@@ -160,6 +162,27 @@ namespace BooleanRetrieval.Logic.QueryParsing
                 var andChild = ExpressionTreeNode.CreateOr(node.Child1.Child1, node.Child2.Child1);
 
                 node = ExpressionTreeNode.CreateNot(andChild);
+            }
+
+            return node;
+        }
+
+        /// <summary>
+        /// AND(NOT, term) -> AND(term, NOT)
+        /// </summary>
+        /// <param name="node"></param>
+        private static ExpressionTreeNode ReplaceFirstNotInAndRule(ExpressionTreeNode node)
+        {
+            if (node == null)
+            {
+                return null;
+            }
+
+            if (node.Operation == "AND" && node.Child1.Operation == "NOT" && node.Child2.Operation != "NOT")
+            {
+                var child = node.Child1;
+                node.Child1 = node.Child2;
+                node.Child2 = child;
             }
 
             return node;
