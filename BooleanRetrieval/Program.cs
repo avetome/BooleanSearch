@@ -24,11 +24,8 @@ namespace BooleanRetrieval
     {
         public static void Main(string[] args)
         {
-            var parser = new EtQueryParser();
-            var parsed = parser.Parse("apple !13 !15");
-
-            const string Filename = "notebooks_210000.csv";
-            // const string Filename = "notebooks.csv";
+            // const string Filename = "notebooks_210000.csv";
+            const string Filename = "notebooks.csv";
 
             /*var arguments = new List<string>() { "--generate", "210000" };
             args = arguments.ToArray();*/
@@ -41,13 +38,31 @@ namespace BooleanRetrieval
                     return;
                 }
             }
-            
-            Console.WriteLine($"Start indexing");
-            
-            Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start();
 
             var storage = new NotebooksFileDataSource(Filename);
+
+            var index = BuildIndex(storage); 
+
+            // just for fun
+            PrintSomeStatistics(index);
+
+            if (args.Count() == 1 && args[0] == "--demo")
+            {
+                DemoSearch(index, storage);
+                return;
+            }
+
+            UserQueryMode(index, storage);
+
+            Console.ReadKey();
+        }
+
+        private static InvertedIndex BuildIndex(NotebooksFileDataSource storage)
+        {
+            Console.WriteLine($"Start indexing");
+
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
 
             var indexBuilder = new InvertedIndexBuilder();
             var index = indexBuilder.BuildIndex(storage);
@@ -61,39 +76,7 @@ namespace BooleanRetrieval
             Console.WriteLine($"Inverted index memory size: {GetObjectSize(index)}.");
             Console.WriteLine();
 
-            // just for fun
-            PrintSomeStatistics(index);
-
-            Console.WriteLine();
-            UserQueryMode(index, storage);
-
-            /*
-            // Some demo searches
-            DemoSearch("apple && 13", storage.Notebooks, () => {
-                var r1 = indexer.FindInIndex("apple");
-                var r2 = indexer.FindInIndex("13");
-
-                return r1.Intersect(r2).ToList();
-            });
-
-            DemoSearch("iru || samsung", storage.Notebooks, () => {
-                var r1 = indexer.FindInIndex("iru");
-                var r2 = indexer.FindInIndex("samsung");
-
-                return r1.Concat(r2).ToList();
-            });
-
-            DemoSearch("apple air && ! 11 && ! 11.6", storage.Notebooks, () =>
-            {
-                var r1 = indexer.FindInIndex("apple");
-                var r2 = indexer.FindInIndex("air");
-                var r3 = indexer.FindInIndex("11");
-                var r4 = indexer.FindInIndex("11.6");
-
-                return r1.Intersect(r2).Except(r3).Except(r4).ToList();
-            });*/
-
-            Console.ReadKey();
+            return index;
         }
 
         private static void UserQueryMode(InvertedIndex index, NotebooksFileDataSource storage)
@@ -101,8 +84,7 @@ namespace BooleanRetrieval
             Console.CancelKeyPress += new ConsoleCancelEventHandler(CancelHandler);
             Stopwatch stopWatch = new Stopwatch();
 
-            var simpleSearcher = new SimpleSearcher(index, storage);
-            var etSearcher = new EtSearcher(index, storage);
+            var searcher = new EtSearcher(index, storage);
 
             while (true)
             {
@@ -114,21 +96,10 @@ namespace BooleanRetrieval
 
                 try
                 {
-                    var result = simpleSearcher.Search(query);
+                    var result = searcher.Search(query);
 
                     stopWatch.Stop();
 
-                    PrintResults(result, stopWatch.ElapsedMilliseconds, storage);
-
-                    stopWatch.Reset();
-                    stopWatch.Start();
-
-                    result = etSearcher.Search(query);
-
-                    stopWatch.Stop();
-
-                    Console.WriteLine();
-                    Console.Write("EtSearcher: ");
                     PrintResults(result, stopWatch.ElapsedMilliseconds, storage);
                 }
                 catch
@@ -160,6 +131,41 @@ namespace BooleanRetrieval
             Console.WriteLine($"Total results: {result.Count}. Search time: {timeMeasure} ms.");
         }
 
+        private static void DemoSearch(InvertedIndex index, NotebooksFileDataSource storage)
+        {
+            var queries = new[] {
+                "apple && 13",
+                "iru || samsung",
+                "apple air && ! 11 && ! 11.6" };
+
+            Stopwatch stopWatch = new Stopwatch();
+
+            var searcher = new EtSearcher(index, storage);
+
+            foreach (var query in queries)
+            {
+                Console.WriteLine();
+                Console.Write($"Searching {query}:");
+                stopWatch.Reset();
+                stopWatch.Start();
+
+                try
+                {
+                    var result = searcher.Search(query);
+
+                    stopWatch.Stop();
+
+                    PrintResults(result, stopWatch.ElapsedMilliseconds, storage);
+                }
+                catch
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Invalid query format");
+                    Console.WriteLine();
+                }
+            }
+        }
+
         private static int GetObjectSize(object TestObject)
         {
             BinaryFormatter bf = new BinaryFormatter();
@@ -181,26 +187,6 @@ namespace BooleanRetrieval
             {
                 Console.WriteLine($"#{i + 1}: \"{stats[i].term}\" Finded in {stats[i].count} sku.");
             }
-        }
-
-        private static void DemoSearch(
-            string searchText,
-            NotebooksFileDataSource storage,
-            Func<List<int>> func)
-        {
-            Console.WriteLine($"For example, request \"{searchText}\": Press any key to run search...");
-            Console.ReadKey();
-
-            Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start();
-
-            var result = func();
-
-            stopWatch.Stop();
-
-            Console.WriteLine();
-
-            PrintResults(result, stopWatch.ElapsedMilliseconds, storage);
         }
 
         private static void CancelHandler(object sender, ConsoleCancelEventArgs args)
