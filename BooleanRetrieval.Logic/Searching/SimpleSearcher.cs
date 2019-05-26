@@ -20,7 +20,7 @@ namespace BooleanRetrieval.Logic.Searching
         public List<int> Search(string query)
         {
             var parser = new SimpleQueryParser(query);
-            var parsedQuery = parser.SimpleParse();
+            var parsedQuery = parser.Parse();
 
             if (parsedQuery.Length == 1)
             {

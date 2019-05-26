@@ -19,7 +19,7 @@ namespace BooleanRetrieval.Logic.QueryParsing
             _tokenReader = new TokenReader(str);
         }
 
-        public string[] SimpleParse()
+        public string[] Parse()
         {
             var result = new List<string>();
 
