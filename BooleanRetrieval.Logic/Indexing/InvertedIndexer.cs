@@ -10,21 +10,13 @@ using System.Text;
 namespace BooleanRetrieval.Logic.Indexing
 {
     /// <summary>
-    /// Build a simple inverted index on file and can search on index.
-    /// In real live we'll have index and indexBuilder separatly, but here...
+    /// Build a simple inverted index on file.
     /// </summary>
-    public class InvertedIndexer : IIndexer
+    public class InvertedIndexBuilder : IInvertedIndexBuilder
     {
-        private Dictionary<string, HashSet<int>> _invertedIndex;
-
-        /// <summary>
-        /// Sharing internal index structure to public it's also looks like bad move. But see above.
-        /// </summary>
-        public Dictionary<string, HashSet<int>> Index => _invertedIndex;
-
-        public void BuildIndex(INotebookDataSource dataSource)
+        public InvertedIndex BuildIndex(INotebookDataSource dataSource)
         {
-            _invertedIndex = new Dictionary<string, HashSet<int>>();
+            var index = new InvertedIndex();
 
             string line;
 
@@ -53,7 +45,7 @@ namespace BooleanRetrieval.Logic.Indexing
                     {
                         if (termStart > 0)
                         {
-                            AddToInvertedIndex(line.Substring(i - termStart, termStart).ToLower(), item.Key);
+                            AddToInvertedIndex(line.Substring(i - termStart, termStart).ToLower(), item.Key, index);
                         }
 
                         termStart = 0;
@@ -63,40 +55,29 @@ namespace BooleanRetrieval.Logic.Indexing
                     {
                         if (termStart > 0)
                         {
-                            AddToInvertedIndex(line.Substring(i - termStart, termStart).ToLower(), item.Key);
+                            AddToInvertedIndex(line.Substring(i - termStart, termStart).ToLower(), item.Key, index);
                         }
 
                         break;
                     }
                 }
             }
+
+            return index;
         }
 
-        public List<int> FindInIndex(string text)
+        private void AddToInvertedIndex(string term, int id, InvertedIndex index)
         {
-            // make a copy for list just in case...
-            List<int> result = new List<int>();
-
-            if (_invertedIndex.ContainsKey(text))
+            if (index.ContainsKey(term))
             {
-                result.AddRange(_invertedIndex[text]);
-            }
-
-            return result;
-        }
-
-        private void AddToInvertedIndex(string term, int id)
-        {
-            if (_invertedIndex.ContainsKey(term))
-            {
-                if (!_invertedIndex[term].Contains(id))
+                if (!index[term].Contains(id))
                 {
-                    _invertedIndex[term].Add(id);
+                    index[term].Add(id);
                 }
             }
             else
             {
-                _invertedIndex[term] = new HashSet<int>() { id };
+                index[term] = new HashSet<int>() { id };
             }
         }
     }

@@ -5,10 +5,8 @@ using System.Text;
 
 namespace BooleanRetrieval.Logic.Indexing
 {
-    public interface IIndexer
+    public interface IInvertedIndexBuilder
     {
-        void BuildIndex(INotebookDataSource dataSource);
-
-        List<int> FindInIndex(string text);
+        InvertedIndex BuildIndex(INotebookDataSource dataSource);
     }
 }

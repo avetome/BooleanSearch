@@ -45,23 +45,23 @@ namespace BooleanRetrieval
 
             var storage = new NotebooksFileDataSource(Filename);
 
-            var indexer = new InvertedIndexer();
-            indexer.BuildIndex(storage);
+            var indexBuilder = new InvertedIndexBuilder();
+            var index = indexBuilder.BuildIndex(storage);
 
             stopWatch.Stop();
             Console.WriteLine($"Indexing is finished in {stopWatch.ElapsedMilliseconds} ms");
 
             Console.WriteLine();
             Console.WriteLine($"Notebooks: {storage.Notebooks.Count}.");
-            Console.WriteLine($"Inverted index terms size: {indexer.Index.Keys.Count}.");
-            Console.WriteLine($"Inverted index memory size: {GetObjectSize(indexer.Index)}.");
+            Console.WriteLine($"Inverted index terms size: {index.Keys.Count}.");
+            Console.WriteLine($"Inverted index memory size: {GetObjectSize(index)}.");
             Console.WriteLine();
 
             // just for fun
-            PrintSomeStatistics(indexer.Index);
+            PrintSomeStatistics(index);
 
             Console.WriteLine();
-            UserQueryMode(new SimpleSearcher(indexer, storage), storage);
+            UserQueryMode(new SimpleSearcher(index, storage), storage);
 
             /*
             // Some demo searches
