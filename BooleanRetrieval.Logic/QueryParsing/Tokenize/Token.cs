@@ -12,7 +12,6 @@ namespace BooleanRetrieval.Logic.QueryParsing.Tokenize
         Not,
         OpenBracket,
         CloseBracket,
-        EOL,
-        None
+        EOL
     }
 }

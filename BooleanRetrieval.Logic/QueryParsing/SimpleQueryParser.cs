@@ -27,6 +27,8 @@ namespace BooleanRetrieval.Logic.QueryParsing
             bool waitionOperation = false;
             while (true)
             {
+                _tokenReader.NextToken();
+
                 if (_tokenReader.Token == Token.EOL)
                 {
                     if (waitingTermOrNot)
@@ -73,8 +75,6 @@ namespace BooleanRetrieval.Logic.QueryParsing
                     waitingTermOrNot = true;
                     waitionOperation = false;
                 }
-
-                _tokenReader.NextToken();
             }
 
             return result.ToArray();
