@@ -19,8 +19,6 @@ namespace BooleanRetrieval.Logic.DataSource
             Load();
         }
 
-        public Dictionary<int, Notebook> Notebooks => _notebooks;
-
         public List<int> GetAllIds()
         {
             return _notebooks.Keys.ToList();

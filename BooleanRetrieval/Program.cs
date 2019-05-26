@@ -71,7 +71,7 @@ namespace BooleanRetrieval
             Console.WriteLine($"Indexing is finished in {stopWatch.ElapsedMilliseconds} ms");
 
             Console.WriteLine();
-            Console.WriteLine($"Notebooks: {storage.Notebooks.Count}.");
+            Console.WriteLine($"Notebooks: {storage.GetAllNotebook().Count}.");
             Console.WriteLine($"Inverted index terms size: {index.Keys.Count}.");
             Console.WriteLine($"Inverted index memory size: {GetObjectSize(index)}.");
             Console.WriteLine();
@@ -121,7 +121,7 @@ namespace BooleanRetrieval
                 Console.WriteLine($"First {maxShow} results: ");
                 for (var r = 0; r < 10; r++)
                 {
-                    var notebook = storage.Notebooks[result[r]];
+                    var notebook = storage.GetAllNotebook()[result[r]];
                     Console.WriteLine($"Id {result[r]}. Brand {notebook.Brand}, Model {notebook.Model}");
                 }
 
