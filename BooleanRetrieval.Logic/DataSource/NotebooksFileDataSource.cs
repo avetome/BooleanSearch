@@ -35,55 +35,12 @@ namespace BooleanRetrieval.Logic.DataSource
         {
             _notebooks = new Dictionary<int, Notebook>();
 
-            int counter = 0;
-            string line;
-            string idStr = string.Empty;
-
-            using (StreamReader file = new StreamReader(_filename))
+            foreach(var line in File.ReadLines(_filename))
             {
-                while ((line = file.ReadLine()) != null)
+                var strings = line.Split(',');
+                if (strings.Length == 3 && int.TryParse(strings[0], out var id))
                 {
-                    var i = 0;
-                    while (line[i] != ',' && i < line.Length)
-                    {
-                        i++;
-                    }
-
-                    idStr = line.Substring(0, i++);
-
-                    // Ignore items without id. 
-                    if (!int.TryParse(idStr, out var id))
-                    {
-                        continue;
-                    }
-
-                    var notebook = new Notebook() { };
-                    var descriptionStart = i;
-
-                    // We look on brand and model same way, just because we don't need any ranging yet
-                    while (true)
-                    {
-                        if (line[i] == ',')
-                        {
-                            notebook.Brand = line.Substring(descriptionStart, i - descriptionStart);
-                            descriptionStart = i + 1;
-                        }
-
-                        if (++i == line.Length)
-                        {
-                            notebook.Model = line.Substring(descriptionStart, i - descriptionStart);
-                            _notebooks.Add(id, notebook);
-
-                            break;
-                        }
-                    }
-
-                    if (counter > 0 && counter % 5000 == 0)
-                    {
-                        // Console.WriteLine($"Indexing {counter} lines...");
-                    }
-
-                    counter++;
+                    _notebooks.Add(id, new Notebook(strings[1], strings[2]));
                 }
             }
         }

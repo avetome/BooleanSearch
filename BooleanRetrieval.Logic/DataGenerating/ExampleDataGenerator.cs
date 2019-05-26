@@ -45,22 +45,18 @@ namespace BooleanRetrieval.Logic.DataGenerating
         private static int ReadNotebooks(string filename, ref List<string> notebooks)
         {
             int counter = 0;
-            string line;
 
-            using (StreamReader file = new StreamReader(filename))
+            foreach (var line in File.ReadLines(filename))
             {
-                while ((line = file.ReadLine()) != null)
+                var i = 0;
+                while (line[i] != ',' && i < line.Length)
                 {
-                    var i = 0;
-                    while (line[i] != ',' && i < line.Length)
-                    {
-                        i++;
-                    }
-
-                    notebooks.Add(line.Substring(++i));
-
-                    counter++;
+                    i++;
                 }
+
+                notebooks.Add(line.Substring(++i));
+
+                counter++;
             }
 
             return counter;
