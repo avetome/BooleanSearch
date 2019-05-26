@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BooleanRetrieval.Logic.QueryParsing.Tokenize
 {
-    public class Tokenizer
+    public class TokenReader
     {
         private string _query;
         private int _position;
@@ -14,7 +14,7 @@ namespace BooleanRetrieval.Logic.QueryParsing.Tokenize
         private Token _currentToken;
         private Token _prevToken;
 
-        public Tokenizer(string query)
+        public TokenReader(string query)
         {
             _query = query;
             _position = 0;

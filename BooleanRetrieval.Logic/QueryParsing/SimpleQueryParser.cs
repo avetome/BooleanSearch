@@ -12,15 +12,11 @@ namespace BooleanRetrieval.Logic.QueryParsing
     /// </summary>
     public class SimpleQueryParser
     {
-        private Tokenizer _tokenizer;
-
-        public SimpleQueryParser(Tokenizer tokenizer)
+        private TokenReader _tokenReader;
+        
+        public SimpleQueryParser(string str)
         {
-            _tokenizer = tokenizer;
-        }
-
-        public SimpleQueryParser(string str) : this(new Tokenizer(str))
-        {
+            _tokenReader = new TokenReader(str);
         }
 
         public string[] SimpleParse()
@@ -31,7 +27,7 @@ namespace BooleanRetrieval.Logic.QueryParsing
             bool waitionOperation = false;
             while (true)
             {
-                if (_tokenizer.Token == Token.EOL)
+                if (_tokenReader.Token == Token.EOL)
                 {
                     if (waitingTermOrNot)
                     {
@@ -43,14 +39,14 @@ namespace BooleanRetrieval.Logic.QueryParsing
 
                 if (waitingTermOrNot)
                 {
-                    if (_tokenizer.Token == Token.Term)
+                    if (_tokenReader.Token == Token.Term)
                     {
-                        result.Add(_tokenizer.Term);
+                        result.Add(_tokenReader.Term);
 
                         waitingTermOrNot = false;
                         waitionOperation = true;
                     }
-                    else if (_tokenizer.Token == Token.Not)
+                    else if (_tokenReader.Token == Token.Not)
                     {
                         result.Add("NOT");
                     }
@@ -61,11 +57,11 @@ namespace BooleanRetrieval.Logic.QueryParsing
                 }
                 else if (waitionOperation)
                 {
-                    if (_tokenizer.Token == Token.And)
+                    if (_tokenReader.Token == Token.And)
                     {
                         result.Add("AND");
                     }
-                    else if (_tokenizer.Token == Token.Or)
+                    else if (_tokenReader.Token == Token.Or)
                     {
                         result.Add("OR");
                     }
@@ -78,7 +74,7 @@ namespace BooleanRetrieval.Logic.QueryParsing
                     waitionOperation = false;
                 }
 
-                _tokenizer.NextToken();
+                _tokenReader.NextToken();
             }
 
             return result.ToArray();
