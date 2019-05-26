@@ -16,7 +16,7 @@ namespace BooleanRetrieval.Logic.DataSource
         public NotebooksFileDataSource(string filename)
         {
             _filename = filename;
-            LoadDataFromSource();
+            Load();
         }
 
         public Dictionary<int, Notebook> Notebooks => _notebooks;
@@ -31,7 +31,7 @@ namespace BooleanRetrieval.Logic.DataSource
             return _notebooks;
         }
 
-        private void LoadDataFromSource()
+        private void Load()
         {
             _notebooks = new Dictionary<int, Notebook>();
 
