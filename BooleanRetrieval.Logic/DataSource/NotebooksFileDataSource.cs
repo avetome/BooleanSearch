@@ -11,12 +11,10 @@ namespace BooleanRetrieval.Logic.DataSource
     public class NotebooksFileDataSource : INotebookDataSource
     {
         private Dictionary<int, Notebook> _notebooks;
-        private string _filename;
 
         public NotebooksFileDataSource(string filename)
         {
-            _filename = filename;
-            Load();
+            Load(filename);
         }
 
         public List<int> GetAllIds()
@@ -29,11 +27,11 @@ namespace BooleanRetrieval.Logic.DataSource
             return _notebooks;
         }
 
-        private void Load()
+        private void Load(string filename)
         {
             _notebooks = new Dictionary<int, Notebook>();
 
-            foreach(var line in File.ReadLines(_filename))
+            foreach(var line in File.ReadLines(filename))
             {
                 var strings = line.Split(',');
                 if (strings.Length == 3 && int.TryParse(strings[0], out var id))
