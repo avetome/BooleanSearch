@@ -8,10 +8,10 @@ namespace BooleanRetrieval.Logic.Searching
 {
     public class SimpleSearcher
     {
-        private readonly InvertedIndex _index;
+        private readonly IIndex _index;
         private readonly INotebookDataSource _dataSource;
 
-        public SimpleSearcher(InvertedIndex index, INotebookDataSource dataSource)
+        public SimpleSearcher(IIndex index, INotebookDataSource dataSource)
         {
             _index = index;
             _dataSource = dataSource;

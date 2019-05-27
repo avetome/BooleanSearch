@@ -4,16 +4,15 @@ using BooleanRetrieval.Logic.QueryParsing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BooleanRetrieval.Logic.Searching
 {
     public class EtSearcher
     {
-        private readonly InvertedIndex _index;
+        private readonly IIndex _index;
         private readonly INotebookDataSource _dataSource;
 
-        public EtSearcher(InvertedIndex index, INotebookDataSource dataSource)
+        public EtSearcher(IIndex index, INotebookDataSource dataSource)
         {
             _index = index;
             _dataSource = dataSource;

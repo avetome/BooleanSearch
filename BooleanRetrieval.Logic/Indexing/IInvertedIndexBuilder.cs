@@ -7,6 +7,6 @@ namespace BooleanRetrieval.Logic.Indexing
 {
     public interface IInvertedIndexBuilder
     {
-        InvertedIndex BuildIndex(INotebookDataSource dataSource);
+        IIndex BuildIndex(INotebookDataSource dataSource);
     }
 }

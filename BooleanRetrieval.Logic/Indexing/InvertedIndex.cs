@@ -8,7 +8,7 @@ namespace BooleanRetrieval.Logic.Indexing
     /// and for potential saving in file.
     /// </summary>
     [Serializable]
-    public class InvertedIndex: Dictionary<string, HashSet<int>>
+    public class InvertedIndex: Dictionary<string, HashSet<int>>, IIndex
     {
         public List<int> Find(string text)
         {
@@ -21,6 +21,26 @@ namespace BooleanRetrieval.Logic.Indexing
             }
 
             return result;
+        }
+
+        public void Add(string term, int id)
+        {
+            if (ContainsKey(term))
+            {
+                if (!this[term].Contains(id))
+                {
+                    this[term].Add(id);
+                }
+            }
+            else
+            {
+                this[term] = new HashSet<int>() { id };
+            }
+        }
+
+        public int Size()
+        {
+            return Keys.Count;
         }
     }
 }

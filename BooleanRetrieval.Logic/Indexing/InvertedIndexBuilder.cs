@@ -14,7 +14,7 @@ namespace BooleanRetrieval.Logic.Indexing
     /// </summary>
     public class InvertedIndexBuilder : IInvertedIndexBuilder
     {
-        public InvertedIndex BuildIndex(INotebookDataSource dataSource)
+        public IIndex BuildIndex(INotebookDataSource dataSource)
         {
             var index = new InvertedIndex();
 
@@ -41,7 +41,7 @@ namespace BooleanRetrieval.Logic.Indexing
                     {
                         if (termStart > 0)
                         {
-                            AddToInvertedIndex(line.Substring(i - termStart, termStart).ToLower(), item.Key, index);
+                            index.Add(line.Substring(i - termStart, termStart).ToLower(), item.Key);
                         }
 
                         termStart = 0;
@@ -51,7 +51,7 @@ namespace BooleanRetrieval.Logic.Indexing
                     {
                         if (termStart > 0)
                         {
-                            AddToInvertedIndex(line.Substring(i - termStart, termStart).ToLower(), item.Key, index);
+                            index.Add(line.Substring(i - termStart, termStart).ToLower(), item.Key);
                         }
 
                         break;
@@ -60,21 +60,6 @@ namespace BooleanRetrieval.Logic.Indexing
             }
 
             return index;
-        }
-
-        private void AddToInvertedIndex(string term, int id, InvertedIndex index)
-        {
-            if (index.ContainsKey(term))
-            {
-                if (!index[term].Contains(id))
-                {
-                    index[term].Add(id);
-                }
-            }
-            else
-            {
-                index[term] = new HashSet<int>() { id };
-            }
         }
     }
 }

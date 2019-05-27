@@ -43,9 +43,6 @@ namespace BooleanRetrieval
 
             var index = BuildIndex(storage); 
 
-            // just for fun
-            PrintSomeStatistics(index);
-
             if (args.Count() == 1 && args[0] == "--demo")
             {
                 DemoSearch(index, storage);
@@ -57,7 +54,7 @@ namespace BooleanRetrieval
             Console.ReadKey();
         }
 
-        private static InvertedIndex BuildIndex(NotebooksFileDataSource storage)
+        private static IIndex BuildIndex(NotebooksFileDataSource storage)
         {
             Console.WriteLine($"Start indexing");
 
@@ -72,14 +69,14 @@ namespace BooleanRetrieval
 
             Console.WriteLine();
             Console.WriteLine($"Notebooks: {storage.GetAllNotebook().Count}.");
-            Console.WriteLine($"Inverted index terms size: {index.Keys.Count}.");
+            Console.WriteLine($"Inverted index terms size: {index.Size()}.");
             Console.WriteLine($"Inverted index memory size: {GetObjectSize(index)}.");
             Console.WriteLine();
 
             return index;
         }
 
-        private static void UserQueryMode(InvertedIndex index, NotebooksFileDataSource storage)
+        private static void UserQueryMode(IIndex index, NotebooksFileDataSource storage)
         {
             Console.CancelKeyPress += new ConsoleCancelEventHandler(CancelHandler);
             Stopwatch stopWatch = new Stopwatch();
@@ -131,7 +128,7 @@ namespace BooleanRetrieval
             Console.WriteLine($"Total results: {result.Count}. Search time: {timeMeasure} ms.");
         }
 
-        private static void DemoSearch(InvertedIndex index, NotebooksFileDataSource storage)
+        private static void DemoSearch(IIndex index, NotebooksFileDataSource storage)
         {
             var queries = new[] {
                 "apple && 13",
@@ -174,19 +171,6 @@ namespace BooleanRetrieval
             bf.Serialize(ms, TestObject);
             Array = ms.ToArray();
             return Array.Length;
-        }
-        
-        private static void PrintSomeStatistics(Dictionary<string, HashSet<int>> invertedIndex)
-        {
-            var statsCountToShow = 10;
-            var stats = invertedIndex.Select(index => (term: index.Key, count: index.Value.Count())).OrderByDescending(t => t.count).ToList();
-
-            Console.WriteLine($"{statsCountToShow} most popular terms");
-
-            for (var i = 0; i < statsCountToShow; i++)
-            {
-                Console.WriteLine($"#{i + 1}: \"{stats[i].term}\" Finded in {stats[i].count} sku.");
-            }
         }
 
         private static void CancelHandler(object sender, ConsoleCancelEventArgs args)
