@@ -28,7 +28,7 @@ namespace BooleanRetrieval.Logic.QueryParsing
 
             _tokenReader.NextToken();
 
-            var result = ParseAnd();
+            var result = ParseOr();
 
             if (_tokenReader.Token != Token.EOL)
             {
@@ -40,42 +40,10 @@ namespace BooleanRetrieval.Logic.QueryParsing
             return result;
         }
 
-        private ExpressionTreeNode ParseAnd()
-        {
-            var node = ParseOr();
-
-            if (_tokenReader.Token != Token.And)
-            {
-                return node;
-            }
-
-            _tokenReader.NextToken();
-
-            ExpressionTreeNode root = ExpressionTreeNode.CreateAnd(node, ParseOr());
-            node = root;
-
-            while (true)
-            {
-                if (_tokenReader.Token != Token.And)
-                {
-                    return root;
-                }
-
-                _tokenReader.NextToken();
-
-                var child1 = node.Child2;
-
-                node.Child2 = ExpressionTreeNode.CreateAnd(child1, ParseOr());
-
-                node = node.Child2;
-            }
-        }
 
         private ExpressionTreeNode ParseOr()
         {
-            var node = ParseNot();
-
-            _tokenReader.NextToken();
+            var node = ParseAnd();
 
             if (_tokenReader.Token != Token.Or)
             {
@@ -84,10 +52,8 @@ namespace BooleanRetrieval.Logic.QueryParsing
 
             _tokenReader.NextToken();
 
-            ExpressionTreeNode root = ExpressionTreeNode.CreateOr(node, ParseNot());
+            ExpressionTreeNode root = ExpressionTreeNode.CreateOr(node, ParseAnd());
             node = root;
-
-            _tokenReader.NextToken();
 
             while (true)
             {
@@ -100,13 +66,49 @@ namespace BooleanRetrieval.Logic.QueryParsing
 
                 var child1 = node.Child2;
 
-                node.Child2 = ExpressionTreeNode.CreateOr(child1, ParseNot());
+                node.Child2 = ExpressionTreeNode.CreateOr(child1, ParseAnd());
+
+                node = node.Child2;
+            }
+        }
+
+        private ExpressionTreeNode ParseAnd()
+        {
+            var node = ParseNot();
+
+            _tokenReader.NextToken();
+
+            if (_tokenReader.Token != Token.And)
+            {
+                return node;
+            }
+
+            _tokenReader.NextToken();
+
+            ExpressionTreeNode root = ExpressionTreeNode.CreateAnd(node, ParseNot());
+            node = root;
+
+            _tokenReader.NextToken();
+
+            while (true)
+            {
+                if (_tokenReader.Token != Token.And)
+                {
+                    return root;
+                }
+
+                _tokenReader.NextToken();
+
+                var child1 = node.Child2;
+
+                node.Child2 = ExpressionTreeNode.CreateAnd(child1, ParseNot());
 
                 node = node.Child2;
 
                 _tokenReader.NextToken();
             }
         }
+
 
         private ExpressionTreeNode ParseNot()
         {
