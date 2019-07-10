@@ -40,7 +40,6 @@ namespace BooleanRetrieval.Logic.QueryParsing
             return result;
         }
 
-
         private ExpressionTreeNode ParseOr()
         {
             var node = ParseAnd();
@@ -119,7 +118,7 @@ namespace BooleanRetrieval.Logic.QueryParsing
 
             _tokenReader.NextToken();
 
-            var term = ParseTerm();
+            var term = ParseNot();
 
             return ExpressionTreeNode.CreateNot(term);
         }
