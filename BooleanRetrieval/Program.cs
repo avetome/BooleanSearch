@@ -116,7 +116,7 @@ namespace BooleanRetrieval
             if (maxShow > 0)
             {
                 Console.WriteLine($"First {maxShow} results: ");
-                for (var r = 0; r < 10; r++)
+                for (var r = 0; r < maxShow; r++)
                 {
                     var notebook = storage.GetAllNotebook()[result[r]];
                     Console.WriteLine($"Id {result[r]}. Brand {notebook.Brand}, Model {notebook.Model}");
